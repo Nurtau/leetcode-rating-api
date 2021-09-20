@@ -4,19 +4,27 @@ const getScore = require("../graphql/getScore");
 const changeScores = async (isReset) => {
 	try {
 		const users = await User.find();
-		const promises = users.map((user) => getScore(user.link));
-		const newScores = await Promise.all(promises);
 		const savedUsers = [];
-		for (let i = 0; i < users.length; i++) {
-			const scoresWithDate = { ...newScores[i], date: new Date() };
-			if (isReset) {
-				users[i].startScores = scoresWithDate;
+		for (let i = 0; i < users.length; i += 40) {
+			let slicedUsers;
+			if (i + 40 >= users.length) {
+				slicedUsers = users.slice(i);
+			} else {
+				slicedUsers = users.slice(i, i + 40);
 			}
-			users[i].currentScores = scoresWithDate;
-			await users[i].save();
-			savedUsers.push(users[i]);
-		}
+			const promises = slicedUsers.map((user) => getScore(user.link));
+			const newScores = await Promise.all(promises);
 
+			for (let j = i, k = 0; j < users.length; j++, k++) {
+				const scoresWithDate = { ...newScores[k], date: new Date() };
+				if (isReset) {
+					users[j].startScores = scoresWithDate;
+				}
+				users[j].currentScores = scoresWithDate;
+				await users[j].save();
+				savedUsers.push(users[j]);
+			}
+		}
 		return savedUsers;
 	} catch (err) {
 		console.log("error during changeScores");

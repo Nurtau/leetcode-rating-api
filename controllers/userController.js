@@ -8,7 +8,7 @@ exports.addUser = async (req, res, next) => {
 	try {
 		const username = req.body.username;
 		let link = req.body.link;
-		link = link.replace(/\/+$/, "").toLowerCase();
+		link = "https://" + link.replace(/\/+$/, "").toLowerCase().replace(/^https:\/\//, "");
 
 		// check of a validity of url
 		if (!link.startsWith("https://leetcode.com") && !validator.isURL(link)) {
