@@ -3,16 +3,17 @@ const getScore = require("../graphql/getScore");
 
 const changeScores = async (isReset) => {
 	try {
+		
 		const users = await User.find();
 		const savedUsers = [];
-		for (let i = 0; i < users.length; i += 40) {
+		for (let i = 0; i < users.length; i+=40) {
 			let slicedUsers;
 			if (i + 40 >= users.length) {
 				slicedUsers = users.slice(i);
 			} else {
 				slicedUsers = users.slice(i, i + 40);
 			}
-			const promises = slicedUsers.map((user) => getScore(user.link));
+			const promises = slicedUsers.map((user) => getScore(user.link, user.currentScores));
 			const newScores = await Promise.all(promises);
 
 			for (let j = i, k = 0; j < users.length; j++, k++) {
@@ -23,7 +24,7 @@ const changeScores = async (isReset) => {
 				users[j].currentScores = scoresWithDate;
 				await users[j].save();
 				savedUsers.push(users[j]);
-			}
+		}
 		}
 		return savedUsers;
 	} catch (err) {

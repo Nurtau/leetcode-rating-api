@@ -4,11 +4,15 @@ const User = require("../models/User");
 const getScore = require("../graphql/getScore");
 
 exports.addUser = async (req, res, next) => {
-
 	try {
 		const username = req.body.username;
 		let link = req.body.link;
-		link = "https://" + link.replace(/\/+$/, "").toLowerCase().replace(/^https:\/\//, "");
+		link =
+			"https://" +
+			link
+				.replace(/\/+$/, "")
+				.toLowerCase()
+				.replace(/^https:\/\//, "");
 
 		// check of a validity of url
 		if (!link.startsWith("https://leetcode.com") && !validator.isURL(link)) {
@@ -19,12 +23,12 @@ exports.addUser = async (req, res, next) => {
 		}
 
 		//check if this account is already in db or not
-    const user = await User.findOne({ link: link });
-    if (user) {
-      return res.status(406).json({
-        message: `The account is already in database`,
-      });
-    }
+		const user = await User.findOne({ link: link });
+		if (user) {
+			return res.status(406).json({
+				message: `The account is already in database`,
+			});
+		}
 
 		const scores = await getScore(link);
 

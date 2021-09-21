@@ -1,7 +1,7 @@
 const axios = require("axios");
 const getUserProfileQuery = require("./queries/getUserProfileQuery");
 
-module.exports = async (link) => {
+module.exports = async (link, userCurrentScores) => {
 	link = link.replace(/\/+$/, "");
 	const splittedWords = link.split("/");
 	const username = splittedWords[splittedWords.length - 1];
@@ -15,13 +15,16 @@ module.exports = async (link) => {
 			{}
 		);
 		const scores = data.data.matchedUser.submitStats.acSubmissionNum;
-		return {
-			easy: scores[1].count,
-			medium: scores[2].count,
-			hard: scores[3].count,
-		};
-	} catch (err) {
-		console.log(err);
-		throw err;
+		if (scores.length > 0) {
+			return {
+				easy: scores[1].count,
+				medium: scores[2].count,
+				hard: scores[3].count,
+			};
+		} else {
+			return userCurrentScores;
+		}
+	} catch (_) {
+		return userCurrentScores;
 	}
 };
